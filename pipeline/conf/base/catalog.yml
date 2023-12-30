@@ -1,0 +1,477 @@
+# Here you can define all your data sets by using simple YAML syntax.
+#
+# Documentation for this file format can be found in "The Data Catalog"
+# Link: https://kedro.readthedocs.io/en/stable/data/data_catalog.html
+
+# Raws (just loading, training data at bottom of page)
+validationhiddenraw:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/validation_hidden.csv
+  layer: raw
+
+wikiraw:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/wiki_movie_plots_deduped.csv
+  layer: raw
+
+testhiddenraw:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/test_hidden.csv
+  layer: raw
+
+linksraw:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/links.csv
+  load_args:
+    sep: ","
+    index_col: 'movieId'
+  layer: raw
+
+moviesraw:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/movies.csv
+  load_args:
+    sep: ","
+    index_col: 'movieId'
+  layer: raw
+
+
+oscarsraw:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/the_oscar_award.csv
+  layer: raw
+
+
+emmysraw:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/the_emmy_awards.csv
+  layer: raw
+
+writing:
+  type: pandas.JSONDataSet
+  filepath: data/01_raw/writing.json
+  layer: raw
+
+directing:
+  type: pandas.JSONDataSet
+  filepath: data/01_raw/directing.json
+  layer: raw
+
+###########################################################################################
+# Intermediates
+budgetint:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: budget_intermediate
+  save_args:
+    if_exists: replace
+  layer: intermediate
+
+linksint:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: links_intermediate
+  save_args:
+    if_exists: replace
+  layer: intermediate
+
+wikiint:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: wiki_intermediate
+  save_args:
+    if_exists: replace
+  layer: intermediate
+
+oscarsint:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: oscars_intermediate
+  save_args:
+    if_exists: replace
+  layer: intermediate
+
+emmysint:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: emmys_intermediate
+  save_args:
+    if_exists: replace
+  layer: intermediate
+
+moviesint:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: movies_intermediate
+  save_args:
+    if_exists: replace
+  layer: intermediate
+
+writersint:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: writers_intermediate
+  save_args:
+    if_exists: replace
+  layer: intermediate
+directorsint:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: directors_intermediate
+  save_args:
+    if_exists: replace
+  layer: intermediate
+
+mainint:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: imdb_review_int
+  save_args:
+    if_exists: replace
+  layer: intermediate
+
+###########################################################################################
+# SQL Selected Data
+# Primary data
+budgetprim:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: budget
+  save_args:
+    if_exists: replace
+  layer: intermediate
+
+oscarsprim:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: oscars
+  save_args:
+    if_exists: replace
+  layer: primary
+
+wikiprim:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: wiki
+  save_args:
+    if_exists: replace
+  layer: primary
+
+
+emmysprim:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: emmys
+  save_args:
+    if_exists: replace
+  layer: primary
+
+mainprim:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: imdb_review_train
+  save_args:
+    if_exists: replace
+  layer: primary
+
+
+writersprim:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: movie_writer
+  save_args:
+    if_exists: replace
+  layer: primary
+
+directorsprim:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: movie_directing
+  save_args:
+    if_exists: replace
+  layer: primary
+
+
+validationmodel:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: imdb_review_validation
+  save_args:
+    if_exists: replace
+  layer: feature
+
+testmodel:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: imdb_review_test
+  save_args:
+    if_exists: replace
+  layer: feature
+###########################################################################################
+# Modeling data (including SQL)
+train:
+  type: pandas.SQLQueryDataSet
+  sql: "SELECT DISTINCT label,
+                           endYear, 
+                           primaryTitle,
+                           endYear - startYear as yeardif, 
+                           runtimeMinutes,
+                           numVotes,
+                           movie_writer.*,
+                           movie_directing.*,
+                           wiki.*,
+                           COALESCE(oscars.winner, -1) AS winner,
+                           COALESCE(emmys.win, -1) AS emmys,
+                           COALESCE(budget.domestic_gross, -1) AS domestic_gross,
+                           COALESCE(budget.worldwide_gross, -1) AS worldwide_gross,
+                           COALESCE(budget.production_budget, -1) AS production_budget
+                    FROM imdb_review_train
+                    LEFT JOIN budget
+                      ON (imdb_review_train.endYear >= budget.release_year AND imdb_review_train.startYear <= budget.release_year)
+                      AND (imdb_review_train.primaryTitle = budget.movie OR imdb_review_train.originalTitle = budget.movie)
+                    LEFT JOIN emmys
+                      ON (imdb_review_train.endYear >= emmys.year AND imdb_review_train.startYear <= emmys.year)
+                      AND (imdb_review_train.primaryTitle = emmys.nominee OR imdb_review_train.originalTitle = emmys.nominee)
+                    LEFT JOIN wiki
+                      ON (imdb_review_train.endYear >= wiki.year AND imdb_review_train.startYear <= wiki.year)
+                      AND (imdb_review_train.primaryTitle = wiki.title OR imdb_review_train.originalTitle = wiki.title)
+                    LEFT JOIN oscars
+                      ON (imdb_review_train.endYear >= oscars.year_film AND imdb_review_train.startYear <= oscars.year_film)
+                      AND (imdb_review_train.primaryTitle = oscars.film OR imdb_review_train.originalTitle = oscars.film)
+                    LEFT JOIN movie_writer
+                      ON imdb_review_train.tconst = movie_writer.movie  
+                    LEFT JOIN movie_directing
+                      ON imdb_review_train.tconst = movie_directing.movie"
+
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  layer: feature
+
+test:
+  type: pandas.SQLQueryDataSet
+  sql: "SELECT 
+                           endYear, 
+                           primaryTitle,
+                           endYear - startYear as yeardif, 
+                           runtimeMinutes,
+                           numVotes,
+                           movie_writer.*,
+                           movie_directing.*,
+                           wiki.*,
+                           COALESCE(oscars.winner, -1) AS winner,
+                           COALESCE(emmys.win, -1) AS emmys,
+                           COALESCE(budget.domestic_gross, -1) AS domestic_gross,
+                           COALESCE(budget.worldwide_gross, -1) AS worldwide_gross,
+                           COALESCE(budget.production_budget, -1) AS production_budget
+                    FROM imdb_review_test
+                    LEFT JOIN budget
+                      ON (imdb_review_test.endYear >= budget.release_year AND imdb_review_test.startYear <= budget.release_year)
+                      AND (imdb_review_test.primaryTitle = budget.movie OR imdb_review_test.originalTitle = budget.movie)
+                    LEFT JOIN wiki
+                      ON (imdb_review_test.endYear >= wiki.year AND imdb_review_test.startYear <= wiki.year)
+                      AND (imdb_review_test.primaryTitle = wiki.title OR imdb_review_test.originalTitle = wiki.title)
+                    LEFT JOIN emmys
+                      ON (imdb_review_test.endYear >= emmys.year AND imdb_review_test.startYear <= emmys.year)
+                      AND (imdb_review_test.primaryTitle = emmys.nominee OR imdb_review_test.originalTitle = emmys.nominee)
+                    LEFT JOIN oscars
+                      ON (imdb_review_test.endYear >= oscars.year_film AND imdb_review_test.startYear <= oscars.year_film)
+                      AND (imdb_review_test.primaryTitle = oscars.film OR imdb_review_test.originalTitle = oscars.film)
+                    LEFT JOIN movie_writer
+                      ON imdb_review_test.tconst = movie_writer.movie  
+                    LEFT JOIN movie_directing
+                      ON imdb_review_test.tconst = movie_directing.movie  
+                     ORDER BY imdb_review_test.tconst"
+
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  layer: feature
+
+validation:
+  type: pandas.SQLQueryDataSet
+  sql: "SELECT 
+                           endYear, 
+                           primaryTitle,
+                           endYear - startYear as yeardif, 
+                           runtimeMinutes,
+                           numVotes,
+                           movie_writer.*,
+                           movie_directing.*,
+                           wiki.*,
+                           COALESCE(oscars.winner, -1) AS winner,
+                           COALESCE(emmys.win, -1) AS emmys,
+                           COALESCE(budget.domestic_gross, -1) AS domestic_gross,
+                           COALESCE(budget.worldwide_gross, -1) AS worldwide_gross,
+                           COALESCE(budget.production_budget, -1) AS production_budget
+                    FROM imdb_review_validation
+                    LEFT JOIN budget
+                      ON (imdb_review_validation.endYear >= budget.release_year AND imdb_review_validation.startYear <= budget.release_year)
+                      AND (imdb_review_validation.primaryTitle = budget.movie OR imdb_review_validation.originalTitle = budget.movie)
+                    LEFT JOIN wiki
+                      ON (imdb_review_validation.endYear >= wiki.year AND imdb_review_validation.startYear <= wiki.year)
+                      AND (imdb_review_validation.primaryTitle = wiki.title OR imdb_review_validation.originalTitle = wiki.title)
+                    LEFT JOIN emmys
+                      ON (imdb_review_validation.endYear >= emmys.year AND imdb_review_validation.startYear <= emmys.year)
+                      AND (imdb_review_validation.primaryTitle = emmys.nominee OR imdb_review_validation.originalTitle = emmys.nominee)
+                    LEFT JOIN oscars
+                      ON (imdb_review_validation.endYear >= oscars.year_film AND imdb_review_validation.startYear <= oscars.year_film)
+                      AND (imdb_review_validation.primaryTitle = oscars.film OR imdb_review_validation.originalTitle = oscars.film)
+                    LEFT JOIN movie_writer
+                      ON imdb_review_validation.tconst = movie_writer.movie  
+                    LEFT JOIN movie_directing
+                      ON imdb_review_validation.tconst = movie_directing.movie  
+                     ORDER BY imdb_review_validation.tconst"
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  layer: feature
+
+###########################################################################################
+# Model input data
+
+X_train:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: x_train
+  save_args:
+    if_exists: replace
+  layer: model_input
+
+y_train:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: y_train
+  save_args:
+    if_exists: replace
+  layer: model_input
+
+# Save test and train data
+X_test:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: x_test
+  save_args:
+    if_exists: replace
+  layer: model_input
+
+y_test:
+  credentials:
+    con: "duckdb:///./data/02_intermediate/imdb_reviews.db"
+  type: pandas.SQLTableDataSet
+  table_name: y_test
+  save_args:
+    if_exists: replace
+  layer: model_input
+
+# Save model
+mymod:
+  type: pickle.PickleDataSet
+  filepath: data/06_models/model.pickle
+  layer: models
+
+results:
+  type: pandas.CSVDataSet
+  filepath: data/06_models/evaluation.csv
+  layer: reporting
+
+# Save predicted datasets
+predictedtest:
+  type: pandas.CSVDataSet
+  filepath: data/07_model_output/test_predictions.csv
+  save_args:
+    index: False
+    header: False
+  layer: model_output
+
+predictedvalid:
+  type: pandas.CSVDataSet
+  filepath: data/07_model_output/validation_predictions.csv
+  save_args:
+    index: False
+    header: False
+  layer: model_output
+
+
+  # Training data Raw
+train1:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/train-1.csv
+  load_args:
+    sep: ','
+    on_bad_lines: 'skip'
+  layer: raw
+
+train2:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/train-2.csv
+  load_args:
+    sep: ','
+    on_bad_lines: 'skip'
+  layer: raw
+
+train3:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/train-3.csv
+  load_args:
+    sep: ','
+    on_bad_lines: 'skip'
+  layer: raw
+
+train4:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/train-4.csv
+  load_args:
+    sep: ','
+    on_bad_lines: 'skip'
+  layer: raw
+
+train5:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/train-5.csv
+  load_args:
+    sep: ','
+    on_bad_lines: 'skip'
+  layer: raw
+
+train6:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/train-6.csv
+  load_args:
+    sep: ','
+    on_bad_lines: 'skip'
+  layer: raw
+
+train7:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/train-7.csv
+  load_args:
+    sep: ','
+    on_bad_lines: 'skip'
+  layer: raw
+
+train8:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/train-8.csv
+  load_args:
+    sep: ','
+    on_bad_lines: 'skip'
+  layer: raw
